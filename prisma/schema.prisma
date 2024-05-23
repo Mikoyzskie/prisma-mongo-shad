@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updateAt    DateTime  @updatedAt
+  products    Product[]
+
+  @@map("category")
+}
+
+model Supplier {
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  contactName  String?
+  contactEmail String?
+  phone        String?
+  address      String?
+  createdAt    DateTime        @default(now())
+  updateAt     DateTime        @updatedAt
+  products     Product[]
+  orders       PurchaseOrder[]
+
+  @@map("supplier")
+}
+
+model Product {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  description     String?
+  price           Float
+  quantityInStock Int
+  createdAt       DateTime @default(now())
+  updateAt        DateTime @updatedAt
+  categoryId      String   @db.ObjectId
+  category        Category @relation(fields: [categoryId], references: [id])
+  supplierId      String   @db.ObjectId
+  supplier        Supplier @relation(fields: [supplierId], references: [id])
+
+  transactions InventoryTransaction[]
+  orderDetails OrderDetail[]
+
+  @@map("product")
+}
+
+model InventoryTransaction {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  transactionDate DateTime
+  quantity        Int
+  transactionType String
+  createdAt       DateTime @default(now())
+  updateAt        DateTime @updatedAt
+  productId       String   @db.ObjectId
+  product         Product  @relation(fields: [productId], references: [id])
+
+  @@map("transaction")
+}
+
+model PurchaseOrder {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderDate  DateTime
+  status     String
+  createdAt  DateTime @default(now())
+  updateAt   DateTime @updatedAt
+  supplierId String   @db.ObjectId
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+
+  orderDetails OrderDetail[]
+
+  @@map("purchase")
+}
+
+model OrderDetail {
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  quantity  Int
+  price     Float
+  createdAt DateTime      @default(now())
+  updateAt  DateTime      @updatedAt
+  orderId   String        @db.ObjectId
+  order     PurchaseOrder @relation(fields: [orderId], references: [id])
+  productId String        @db.ObjectId
+  product   Product       @relation(fields: [productId], references: [id])
+
+  @@map("order")
+}
