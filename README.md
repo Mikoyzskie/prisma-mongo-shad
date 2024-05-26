@@ -26,3 +26,6 @@ npm i @clerk/nextjs
 ```
 
 Create app on clerk
+Get env variables
+
+Create middleware
