@@ -29,3 +29,4 @@ Create app on clerk
 Get env variables
 
 Create middleware
+Create sign in sign out layout
